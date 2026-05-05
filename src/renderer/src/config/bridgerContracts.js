@@ -1,0 +1,57 @@
+export const BRIDGER_CONTRACTS = {
+  // 🔵 EVM CHAINS
+  ETH: "0xb685760ebd368a891f27ae547391f4e2a289895b",
+  BSC: "0xb685760ebd368a891f27ae547391f4e2a289895b",
+  MATIC: "0xb685760ebd368a891f27ae547391f4e2a289895b",
+  FANTOM: "0xb685760ebd368a891f27ae547391f4e2a289895b",
+  ARBITRUM: "0xb685760ebd368a891f27ae547391f4e2a289895b",
+  AVALANCHE: "0xb685760ebd368a891f27ae547391f4e2a289895b",
+  OPTIMISM: "0xb685760ebd368a891f27ae547391f4e2a289895b",
+  OEC: "0xb685760ebd368a891f27ae547391f4e2a289895b",
+
+  // 🔵 Special EVM Chains
+  BASE: "0xa18968cc31232724f1dbd0d1e8d0b323d89f3501",
+  CRONOS: "0x332fae8fa47941305e5de262ae3587ad6dca0a78",
+  ZKSYNC: "0x2042ecdc71f9ffb2eb9cda7f801eccc5c6c8b7eb",
+
+  // 🔵 Shared New Chains
+  OPBNB: "0x8f957ed3f969d7b6e5d6df81e61a5ff45f594dd1",
+  CFX: "0x8f957ed3f969d7b6e5d6df81e61a5ff45f594dd1",
+  ZKEVM: "0x8f957ed3f969d7b6e5d6df81e61a5ff45f594dd1",
+  SCROLL: "0x8f957ed3f969d7b6e5d6df81e61a5ff45f594dd1",
+
+  // 🔵 Advanced Chains
+  MANTLE: "0xd1088d3376c2384d469d1c0d55d503695e1be3e6",
+  CELO: "0xd1088d3376c2384d469d1c0d55d503695e1be3e6",
+  XLAYER: "0xd1088d3376c2384d469d1c0d55d503695e1be3e6",
+  BLAST: "0xd1088d3376c2384d469d1c0d55d503695e1be3e6",
+  APE: "0xd1088d3376c2384d469d1c0d55d503695e1be3e6",
+
+  // 🔵 Shared Alt Chains
+  CORE: "0x8159891dfe9de7fc3bf1b665eb1adda60f2acd0e",
+  LINEA: "0x8159891dfe9de7fc3bf1b665eb1adda60f2acd0e",
+  MERLIN: "0x8159891dfe9de7fc3bf1b665eb1adda60f2acd0e",
+  ONCHAIN: "0x8159891dfe9de7fc3bf1b665eb1adda60f2acd0e",
+
+  // 🔵 New Ecosystem Chains
+  ETHF: "0x89a70b162be7dbc8b5e7579066fa58190c48d693",
+  SONIC: "0x89a70b162be7dbc8b5e7579066fa58190c48d693",
+  BERA: "0x89a70b162be7dbc8b5e7579066fa58190c48d693",
+
+  // 🟡 NON-EVM CHAINS (Different handling)
+  TRON: "TPwezUWpEGmFBENNWJHwXHRG1D2NCEEt5s",
+  SOLANA: "FDF8AxHB8UK7RS6xay6aBvwS3h7kez9gozqz14JyfKsg",
+  APTOS: "0x4512ba8a4862edcb20d5027a8d1b47129299d4bed9e41a8a727b78808d6faef4",
+  SUI: "0x2b0876f0b7034320ad6d2f378501fe92e41c8b4780bda7769094d2431170e532",
+  TON: "EQCqTuPS-cMN9SSRhaFrwJOGL7dKkFF8C0a05g2WzI9uRJ19",
+
+  // 🔴 UTXO CHAINS (NO SMART CONTRACT)
+  BTC: "bc1q7t4vyehjsexdme84qhdgd4dawcn54djh0m78fz",
+  DOGE: "DNqWDenhxgWTfy2bpJn4tES6uMwz1nqt6C",
+  LTC: "ltc1q0sc0myh0a2wap7eshhyz2ahc2xdn86g7fv32r2",
+  BCH: "qq9ndmhw4dyxfc2cy5czth9gwq7xmu7evvjudqj8lt",
+  COSMOS: "cosmos12kvp0fgulyd9glnq8cj8t9f62amtdeaeh2zxl8",
+
+  // 🔴 XRP
+  XRP: "rM27yzkCw6WA3T4g1sPaeC1kpxHUhuxRWn",
+};
