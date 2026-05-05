@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>CieldX Wallet</title>
+  <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+  <!-- <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
+    /> -->
+
+  <!-- <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    connect-src 'self' https://dev-dwm.jamsara.com;
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' data: https: *;  /* Allow all HTTPS images */
+  " /> -->
+
+  <!-- <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    connect-src 'self' https://dev-dwm.jamsara.com;
+    script-src 'self' 'unsafe-inline' 'unsafe-eval';
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' data: https:;
+    font-src 'self' data:;
+" /> -->
+
+  <meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  connect-src 'self' https: wss:;
+  script-src 'self' 'unsafe-inline' 'unsafe-eval';
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' data: https:;
+  font-src 'self' data:;
+" />
+  <script type="module" src="/src/polyfills.js"></script>
+
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
+</html>

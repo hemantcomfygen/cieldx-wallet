@@ -1,0 +1,133 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap'); */
+@import "tailwindcss";
+
+@font-face {
+  font-family: 'SatoshiFont';
+  src: url('/fonts/Satoshi-Variable.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+body {
+  font-family: "SatoshiFont", sans-serif;
+  background-color: #0E0F11;
+  color: #E5E7EB;
+}
+
+/* Font Utility */
+.font-bricolage {
+  font-family: "Bricolage Grotesque", sans-serif;
+}
+
+/* ===============================
+   Trezor Dark Theme Tokens
+================================ */
+@theme {
+  /* Core Backgrounds */
+  --color-primaryTheme: #0E0F11;
+  --color-headerFooterColor: rgba(255,255,255,0.03);
+  --color-glass-bg: rgba(255,255,255,0.04);
+  --color-glass-border: rgba(255,255,255,0.1);
+
+  /* Cards */
+  --color-card-bg: #15171A;
+  --color-borderColor: rgba(255,255,255,0.06);
+
+  /* Text */
+  --color-default-text: #E5E7EB;
+  --color-light-text: #9CA3AF;
+  --color-trans-text: #6B7280;
+
+  /* Primary (Trezor Green) */
+  --color-success: #5ED49C;
+  --color-success-light: #8BE6BA;
+  --color-success-dark: #3EBE84;
+
+  /* Warning / Danger */
+  --color-danger: #EF4444;
+  --color-danger-light: #F87171;
+  --color-danger-dark: #DC2626;
+
+  --color-yellow: #FACC15;
+  --color-yellow-light: #FDE68A;
+  --color-yellow-dark: #EAB308;
+}
+
+
+@layer components {
+
+  /* Sidebar / Card */
+  .card {
+    @apply bg-[var(--color-card-bg)]
+           border border-borderColor
+           rounded-xl p-4 sm:p-6;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    @apply bg-success text-black
+           hover:bg-success-dark
+           font-medium px-5 py-2 rounded-lg
+           transition;
+  }
+
+  .btn-secondary {
+    @apply bg-white/5 text-gray-200
+           hover:bg-white/10
+           border border-white/10
+           px-5 py-2 rounded-lg;
+  }
+
+  .btn-glass {
+    @apply bg-glass-bg backdrop-blur-md
+           border border-glass-border
+           text-gray-200
+           hover:bg-white/10
+           px-4 py-2 rounded-lg;
+  }
+
+  /* Sidebar item */
+  .sidebar-item {
+    @apply flex items-center gap-3
+           text-gray-300
+           px-4 py-3 rounded-lg
+           hover:bg-white/5 transition;
+  }
+
+  .sidebar-item-active {
+    @apply bg-white/10 text-white;
+  }
+}
+
+
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Slim sidebar scroll */
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(149, 151, 150, 0.2) transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+  width: 3px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(149, 151, 150, 0.2);
+  border-radius: 99px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(149, 151, 150, 0.4);
+}
