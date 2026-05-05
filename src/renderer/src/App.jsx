@@ -32,24 +32,33 @@ const App = () => {
   const [isUnlocked, setIsUnlocked] = useState(sessionStorage.getItem("isUnlocked") === "true");
 
   const [updateAvailable, setUpdateAvailable] = useState(false);
-  const [updateProgress, setUpdateProgress] = useState(0);
+  const [updateProgress, setUpdateProgress] = useState(null);
   const [updateReady, setUpdateReady] = useState(false);
 
   useEffect(() => {
     if (!window.api) return;
 
-    window.api.onUpdateAvailable(() => {
+    const handleUpdateAvailable = () => {
       console.log("Update available");
       setUpdateAvailable(true);
-    });
+      setUpdateProgress(0);
+    };
 
-    window.api.onUpdateProgress((percent) => {
+    const handleProgress = (percent) => {
       setUpdateProgress(percent);
-    });
+    };
 
-    window.api.onUpdateDownloaded(() => {
+    const handleDownloaded = () => {
       setUpdateReady(true);
-    });
+    };
+
+    window.api.onUpdateAvailable(handleUpdateAvailable);
+    window.api.onUpdateProgress(handleProgress);
+    window.api.onUpdateDownloaded(handleDownloaded);
+
+    return () => {
+      window.api.removeAllUpdateListeners?.();
+    };
   }, []);
 
   // Initialize blockchain monitoring
@@ -118,29 +127,51 @@ const App = () => {
           padding: "16px",
           borderRadius: "10px",
           zIndex: 9999,
-          width: "300px"
+          width: "300px",
+          boxShadow: "0 0 10px rgba(0,0,0,0.5)"
         }}>
-          <h4>🚀 Update Available</h4>
+          <h4 style={{ marginBottom: "10px" }}>🚀 App Update</h4>
 
           {!updateReady ? (
             <>
-              <p>Downloading... {Math.round(updateProgress)}%</p>
-              <div style={{
-                height: "6px",
-                background: "#333",
-                borderRadius: "4px"
-              }}>
+              <p>
+                {updateProgress !== null
+                  ? `Downloading... ${Math.round(updateProgress)}%`
+                  : "Preparing update..."}
+              </p>
+
+              {updateProgress !== null && (
                 <div style={{
-                  width: `${updateProgress}%`,
-                  height: "100%",
-                  background: "#4caf50"
-                }} />
-              </div>
+                  height: "6px",
+                  background: "#333",
+                  borderRadius: "4px",
+                  overflow: "hidden"
+                }}>
+                  <div style={{
+                    width: `${updateProgress}%`,
+                    height: "100%",
+                    background: "#4caf50",
+                    transition: "width 0.3s"
+                  }} />
+                </div>
+              )}
             </>
           ) : (
             <>
-              <p>Update ready!</p>
-              <button onClick={() => window.api.installUpdate()}>
+              <p>✅ Update ready to install</p>
+
+              <button
+                onClick={() => window.api?.installUpdate?.()}
+                style={{
+                  marginTop: "10px",
+                  padding: "8px 12px",
+                  background: "#4caf50",
+                  border: "none",
+                  color: "#fff",
+                  borderRadius: "6px",
+                  cursor: "pointer"
+                }}
+              >
                 Restart & Install
               </button>
             </>
