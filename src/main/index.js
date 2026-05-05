@@ -7,14 +7,15 @@ import { autoUpdater } from "electron-updater";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Detect dev mode
 const isDev = !app.isPackaged;
 
+let mainWindow;
+
 // ------------------------------------------------------
-// Create Browser Window
+// Create Window
 // ------------------------------------------------------
 function createWindow() {
-  const win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1440,
     height: 1080,
     title: "CieldX Wallet",
@@ -25,50 +26,61 @@ function createWindow() {
       nodeIntegration: false,
     },
   });
-  win.maximize();
+
+  mainWindow.maximize();
 
   if (isDev) {
-    // Development (Vite dev server)
-    win.loadURL("http://localhost:5173");
+    mainWindow.loadURL("http://localhost:5173");
   } else {
-    // Production (Load built index.html)
-    win.loadFile(path.join(__dirname, "../renderer/index.html"));
+    mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
   }
 }
 
+// ------------------------------------------------------
+// Send to renderer safely
+// ------------------------------------------------------
 function sendToRenderer(channel, data) {
-  const win = BrowserWindow.getAllWindows()[0];
-  if (win) {
-    win.webContents.send(channel, data);
+  if (mainWindow) {
+    mainWindow.webContents.send(channel, data);
   }
 }
+
+// ------------------------------------------------------
+// AUTO UPDATER EVENTS
+// ------------------------------------------------------
+autoUpdater.logger = console;
+autoUpdater.logger.transports.file.level = "info";
+
+// Optional but useful
+autoUpdater.autoDownload = true;
 
 autoUpdater.on("checking-for-update", () => {
-  sendToRenderer("update-checking");
+  console.log("Checking for update...");
 });
 
 autoUpdater.on("update-available", () => {
-
-  console.log("update available")
+  console.log("Update available");
   sendToRenderer("update-available");
 });
 
 autoUpdater.on("update-not-available", () => {
-  sendToRenderer("update-not-available");
+  console.log("No updates found");
 });
 
 autoUpdater.on("download-progress", (progress) => {
+  console.log("Download:", progress.percent);
   sendToRenderer("update-progress", progress.percent);
 });
 
 autoUpdater.on("update-downloaded", () => {
+  console.log("Update downloaded");
   sendToRenderer("update-downloaded");
 });
 
 // ------------------------------------------------------
-// IPC Handler (Renderer → Main → Axios → Renderer)
+// IPC
 // ------------------------------------------------------
-ipcMain.handle("fetch-data", async (event, url) => {
+ipcMain.handle("fetch-data", async (_, url) => {
   try {
     const res = await axios.get(url);
     return { success: true, data: res.data };
@@ -77,14 +89,37 @@ ipcMain.handle("fetch-data", async (event, url) => {
   }
 });
 
+// Install trigger
+ipcMain.on("install-update", () => {
+  if (process.platform !== "linux") {
+    autoUpdater.quitAndInstall();
+  } else {
+    console.log("Linux → manual restart required");
+  }
+});
+
 // ------------------------------------------------------
-// App Lifecycle
+// APP READY
 // ------------------------------------------------------
 app.whenReady().then(() => {
   createWindow();
 
   if (!isDev) {
-    autoUpdater.checkForUpdates();
+    // 🔥 IMPORTANT: Explicit GitHub config
+    autoUpdater.setFeedURL({
+      provider: "github",
+      owner: "hemantcomfygen",
+      repo: "cieldx-wallet",
+    });
+
+    // 🔥 Better method
+    autoUpdater.checkForUpdatesAndNotify();
+
+    // Debug force check
+    setTimeout(() => {
+      console.log("FORCE CHECK...");
+      autoUpdater.checkForUpdatesAndNotify();
+    }, 5000);
   }
 
   app.on("activate", () => {
