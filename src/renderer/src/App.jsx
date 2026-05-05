@@ -31,6 +31,27 @@ const App = () => {
   const [balanceRefresh, setBalanceRefresh] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(sessionStorage.getItem("isUnlocked") === "true");
 
+  const [updateAvailable, setUpdateAvailable] = useState(false);
+  const [updateProgress, setUpdateProgress] = useState(0);
+  const [updateReady, setUpdateReady] = useState(false);
+
+  useEffect(() => {
+    if (!window.api) return;
+
+    window.api.onUpdateAvailable(() => {
+      console.log("Update available");
+      setUpdateAvailable(true);
+    });
+
+    window.api.onUpdateProgress((percent) => {
+      setUpdateProgress(percent);
+    });
+
+    window.api.onUpdateDownloaded(() => {
+      setUpdateReady(true);
+    });
+  }, []);
+
   // Initialize blockchain monitoring
   useBlockchainNotification();
 
@@ -63,22 +84,22 @@ const App = () => {
     });
   }, []);
 
-  useEffect(() => {
-    if (location.pathname === "/") {
-      const userId = localStorageGetItem("userId");
-
-      navigate(userId ? "/app/dashboard" : "/");
-    }
-  }, []);
-
-// update comment
   // useEffect(() => {
-  //   const hashPath = window.location.hash.replace("#", "") || "/";
-  //   const userId = localStorageGetItem("userId");
-  //   if (hashPath === "/") {
+  //   if (location.pathname === "/") {
+  //     const userId = localStorageGetItem("userId");
+
   //     navigate(userId ? "/app/dashboard" : "/");
   //   }
   // }, []);
+
+  // update comment
+  useEffect(() => {
+    const hashPath = window.location.hash.replace("#", "") || "/";
+    const userId = localStorageGetItem("userId");
+    if (hashPath === "/") {
+      navigate(userId ? "/app/dashboard" : "/");
+    }
+  }, []);
 
 
   const userId = localStorageGetItem("userId");
@@ -86,6 +107,47 @@ const App = () => {
 
   return (
     <div className="bg-primaryTheme min-h-screen">
+
+      {updateAvailable && (
+        <div style={{
+          position: "fixed",
+          top: 20,
+          right: 20,
+          background: "#111",
+          color: "#fff",
+          padding: "16px",
+          borderRadius: "10px",
+          zIndex: 9999,
+          width: "300px"
+        }}>
+          <h4>🚀 Update Available</h4>
+
+          {!updateReady ? (
+            <>
+              <p>Downloading... {Math.round(updateProgress)}%</p>
+              <div style={{
+                height: "6px",
+                background: "#333",
+                borderRadius: "4px"
+              }}>
+                <div style={{
+                  width: `${updateProgress}%`,
+                  height: "100%",
+                  background: "#4caf50"
+                }} />
+              </div>
+            </>
+          ) : (
+            <>
+              <p>Update ready!</p>
+              <button onClick={() => window.api.installUpdate()}>
+                Restart & Install
+              </button>
+            </>
+          )}
+        </div>
+      )}
+
       {userId && !isSessionUnlocked && !isUnlocked ? (
         <LockScreen onUnlock={handleUnlock} />
       ) : (

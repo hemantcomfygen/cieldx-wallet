@@ -1,6 +1,6 @@
 {
   "name": "cieldx-wallet",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "CieldX Wallet is a secure, non-custodial crypto wallet that lets users manage digital assets, interact with decentralized applications (dApps), and perform seamless cross-chain transactions—all in one place.",
   "main": "./out/main/index.js",
   "author": {
@@ -20,15 +20,16 @@
     ],
     "linux": {
       "target": [
-        "AppImage"
+        "AppImage",
+        "deb"
       ],
       "icon": "resources"
     },
     "publish": [
       {
         "provider": "github",
-        "owner": "YOUR_USERNAME",
-        "repo": "YOUR_REPO"
+        "owner": "hemantcomfygen",
+        "repo": "cieldx-wallet"
       }
     ]
   },

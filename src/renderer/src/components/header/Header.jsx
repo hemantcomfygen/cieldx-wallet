@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import CustomButton from "../Buttons/CustomButton";
 import { Fade } from "react-awesome-reveal";
 import { MdMenu } from "react-icons/md";
-import logo from "../../../public/logoDWM.png"
+import logo from "/logoDWM.png"
 
 const Header = ({ isButton = true, setSidebarOpen }) => {
     const navigate = useNavigate();

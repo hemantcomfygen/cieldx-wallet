@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import CustomButton from "../Buttons/CustomButton";
 import { ArrowLeft } from "lucide-react";
-import logo from "../../../public/logoDWM.png"
+import logo from "/logoDWM.png"
 
 
 const BackupTypeSelect = ({ setStep, setWalletStage, item }) => {

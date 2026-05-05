@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
 import { fileURLToPath } from "url";
 import axios from "axios";
+import { autoUpdater } from "electron-updater";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,6 +36,35 @@ function createWindow() {
   }
 }
 
+function sendToRenderer(channel, data) {
+  const win = BrowserWindow.getAllWindows()[0];
+  if (win) {
+    win.webContents.send(channel, data);
+  }
+}
+
+autoUpdater.on("checking-for-update", () => {
+  sendToRenderer("update-checking");
+});
+
+autoUpdater.on("update-available", () => {
+
+  console.log("update available")
+  sendToRenderer("update-available");
+});
+
+autoUpdater.on("update-not-available", () => {
+  sendToRenderer("update-not-available");
+});
+
+autoUpdater.on("download-progress", (progress) => {
+  sendToRenderer("update-progress", progress.percent);
+});
+
+autoUpdater.on("update-downloaded", () => {
+  sendToRenderer("update-downloaded");
+});
+
 // ------------------------------------------------------
 // IPC Handler (Renderer → Main → Axios → Renderer)
 // ------------------------------------------------------
@@ -52,6 +82,10 @@ ipcMain.handle("fetch-data", async (event, url) => {
 // ------------------------------------------------------
 app.whenReady().then(() => {
   createWindow();
+
+  if (!isDev) {
+    autoUpdater.checkForUpdates();
+  }
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
