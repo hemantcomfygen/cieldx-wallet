@@ -4,18 +4,18 @@ import { fileURLToPath } from "url";
 import axios from "axios";
 import { autoUpdater } from "electron-updater";
 
+// Fix __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Detect dev mode
 const isDev = !app.isPackaged;
 
-let mainWindow;
-
 // ------------------------------------------------------
-// Create Window
+// Create Browser Window
 // ------------------------------------------------------
 function createWindow() {
-  mainWindow = new BrowserWindow({
+  const win = new BrowserWindow({
     width: 1440,
     height: 1080,
     title: "CieldX Wallet",
@@ -27,60 +27,29 @@ function createWindow() {
     },
   });
 
-  mainWindow.maximize();
+  win.maximize();
 
   if (isDev) {
-    mainWindow.loadURL("http://localhost:5173");
+    win.loadURL("http://localhost:5173");
   } else {
-    mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
+    win.loadFile(path.join(__dirname, "../renderer/index.html"));
   }
 }
 
 // ------------------------------------------------------
-// Send to renderer safely
+// Safe Renderer Sender
 // ------------------------------------------------------
 function sendToRenderer(channel, data) {
-  if (mainWindow) {
-    mainWindow.webContents.send(channel, data);
+  const win = BrowserWindow.getAllWindows()[0];
+  if (win && !win.isDestroyed()) {
+    win.webContents.send(channel, data);
   }
 }
 
 // ------------------------------------------------------
-// AUTO UPDATER EVENTS
+// IPC Handler (Renderer → Main → Axios → Renderer)
 // ------------------------------------------------------
-autoUpdater.logger = console;
-autoUpdater.logger.transports.file.level = "info";
-
-// Optional but useful
-autoUpdater.autoDownload = true;
-
-autoUpdater.on("checking-for-update", () => {
-  console.log("Checking for update...");
-});
-
-autoUpdater.on("update-available", () => {
-  console.log("Update available");
-  sendToRenderer("update-available");
-});
-
-autoUpdater.on("update-not-available", () => {
-  console.log("No updates found");
-});
-
-autoUpdater.on("download-progress", (progress) => {
-  console.log("Download:", progress.percent);
-  sendToRenderer("update-progress", progress.percent);
-});
-
-autoUpdater.on("update-downloaded", () => {
-  console.log("Update downloaded");
-  sendToRenderer("update-downloaded");
-});
-
-// ------------------------------------------------------
-// IPC
-// ------------------------------------------------------
-ipcMain.handle("fetch-data", async (_, url) => {
+ipcMain.handle("fetch-data", async (event, url) => {
   try {
     const res = await axios.get(url);
     return { success: true, data: res.data };
@@ -89,44 +58,71 @@ ipcMain.handle("fetch-data", async (_, url) => {
   }
 });
 
-// Install trigger
-ipcMain.on("install-update", () => {
-  if (process.platform !== "linux") {
-    autoUpdater.quitAndInstall();
-  } else {
-    console.log("Linux → manual restart required");
-  }
-});
-
 // ------------------------------------------------------
-// APP READY
+// App Lifecycle
 // ------------------------------------------------------
 app.whenReady().then(() => {
   createWindow();
 
+  // ✅ ONLY run updater in production
   if (!isDev) {
-    // 🔥 IMPORTANT: Explicit GitHub config
-    autoUpdater.setFeedURL({
-      provider: "github",
-      owner: "hemantcomfygen",
-      repo: "cieldx-wallet",
-    });
+    try {
+      // Logger setup (safe)
+      autoUpdater.logger = console;
 
-    // 🔥 Better method
-    autoUpdater.checkForUpdatesAndNotify();
+      if (autoUpdater.logger?.transports?.file) {
+        autoUpdater.logger.transports.file.level = "info";
+      }
 
-    // Debug force check
-    setTimeout(() => {
-      console.log("FORCE CHECK...");
+      // ---------------------------
+      // Updater Events
+      // ---------------------------
+      autoUpdater.on("checking-for-update", () => {
+        console.log("Checking for update...");
+      });
+
+      autoUpdater.on("update-available", () => {
+        console.log("Update available");
+        sendToRenderer("update-available");
+      });
+
+      autoUpdater.on("update-not-available", () => {
+        console.log("No updates found");
+      });
+
+      autoUpdater.on("download-progress", (progress) => {
+        console.log("Download:", progress.percent);
+        sendToRenderer("update-progress", progress.percent);
+      });
+
+      autoUpdater.on("update-downloaded", () => {
+        console.log("Update downloaded");
+        sendToRenderer("update-downloaded");
+      });
+
+      autoUpdater.on("error", (err) => {
+        console.error("Updater error:", err);
+      });
+
+      // Start update check AFTER listeners
       autoUpdater.checkForUpdatesAndNotify();
-    }, 5000);
+
+    } catch (err) {
+      console.error("Updater init failed:", err);
+    }
   }
 
+  // macOS behavior
   app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow();
+    }
   });
 });
 
+// Quit app
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") app.quit();
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
 });
