@@ -55,7 +55,7 @@ export default function Sidebar({
         />
         <SidebarItem
           icon={<LuScanSearch size={18} />}
-          label="One Missing Word"
+          label="One Missing"
           active={activeTab === "one-missing"}
           onClick={() => navigate("/app/one-missing")}
         />
