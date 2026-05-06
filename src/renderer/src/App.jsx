@@ -35,6 +35,7 @@ const App = () => {
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [updateProgress, setUpdateProgress] = useState(null);
   const [updateReady, setUpdateReady] = useState(false);
+  const [showUpdatePrompt, setShowUpdatePrompt] = useState(false);
 
   useEffect(() => {
     if (!window.api) return;
@@ -43,6 +44,7 @@ const App = () => {
       console.log("Update available");
       setUpdateAvailable(true);
       setUpdateProgress(0);
+      setShowUpdatePrompt(true);
     };
 
     const handleProgress = (percent) => {
@@ -122,6 +124,17 @@ const App = () => {
         updateAvailable={updateAvailable}
         updateProgress={updateProgress}
         updateReady={updateReady}
+        showUpdatePrompt={showUpdatePrompt}
+        onUpdateNow={() => {
+          setShowUpdatePrompt(false);
+          setUpdateProgress(0);
+
+          window.api?.startUpdateDownload?.();
+        }}
+        onLater={() => {
+          setUpdateAvailable(false);
+          setShowUpdatePrompt(false);
+        }}
         onInstall={() => window.api?.installUpdate?.()}
       />
 

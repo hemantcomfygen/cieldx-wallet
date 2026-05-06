@@ -1,3 +1,170 @@
+// import { app, BrowserWindow, ipcMain } from "electron";
+// import path from "path";
+// import { fileURLToPath } from "url";
+// import axios from "axios";
+// import { autoUpdater } from "electron-updater";
+
+// // Fix __dirname for ES modules
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+
+// // Detect dev mode
+// const isDev = !app.isPackaged;
+
+// // ------------------------------------------------------
+// // Create Browser Window
+// // ------------------------------------------------------
+// function createWindow() {
+//   const win = new BrowserWindow({
+//     width: 1440,
+//     height: 1080,
+//     title: "CieldX Wallet",
+//     icon: path.join(__dirname, "../resources/icon.png"),
+//     webPreferences: {
+//       preload: path.join(__dirname, "../preload/index.js"),
+//       contextIsolation: true,
+//       nodeIntegration: false,
+//     },
+//   });
+
+//   win.maximize();
+
+//   if (isDev) {
+//     win.loadURL("http://localhost:5173");
+//   } else {
+//     win.loadFile(path.join(__dirname, "../renderer/index.html"));
+//   }
+// }
+
+// // ------------------------------------------------------
+// // Safe Renderer Sender
+// // ------------------------------------------------------
+// function sendToRenderer(channel, data) {
+//   const win = BrowserWindow.getAllWindows()[0];
+//   if (win && !win.isDestroyed()) {
+//     win.webContents.send(channel, data);
+//   }
+// }
+
+// // ------------------------------------------------------
+// // IPC Handler (Renderer → Main → Axios → Renderer)
+// // ------------------------------------------------------
+// ipcMain.handle("fetch-data", async (event, url) => {
+//   try {
+//     const res = await axios.get(url);
+//     return { success: true, data: res.data };
+//   } catch (err) {
+//     return { success: false, error: err.message };
+//   }
+// });
+
+// ipcMain.on("install-update", () => {
+//   autoUpdater.quitAndInstall();
+// });
+
+// ipcMain.handle("get-app-version", () => {
+//   return app.getVersion();
+// });
+
+// // ------------------------------------------------------
+// // App Lifecycle
+// // ------------------------------------------------------
+// app.whenReady().then(() => {
+//   createWindow();
+
+//   // ✅ ONLY run updater in production
+//   // if (!isDev) {
+//   //   try {
+//   //     // Logger setup (safe)
+//   //     autoUpdater.logger = console;
+
+//   //     if (autoUpdater.logger?.transports?.file) {
+//   //       autoUpdater.logger.transports.file.level = "info";
+//   //     }
+
+//   //     // ---------------------------
+//   //     // Updater Events
+//   //     // ---------------------------
+//   //     autoUpdater.on("checking-for-update", () => {
+//   //       console.log("Checking for update...");
+//   //     });
+
+//   //     autoUpdater.on("update-available", () => {
+//   //       console.log("Update available");
+//   //       sendToRenderer("update-available");
+//   //     });
+
+//   //     autoUpdater.on("update-not-available", () => {
+//   //       console.log("No updates found");
+//   //     });
+
+//   //     autoUpdater.on("download-progress", (progress) => {
+//   //       console.log("Download:", progress.percent);
+//   //       sendToRenderer("update-progress", progress.percent);
+//   //     });
+
+//   //     autoUpdater.on("update-downloaded", () => {
+//   //       console.log("Update downloaded");
+//   //       sendToRenderer("update-downloaded");
+//   //     });
+
+//   //     autoUpdater.on("error", (err) => {
+//   //       console.error("Updater error:", err);
+//   //     });
+
+//   //     // Start update check AFTER listeners
+//   //     autoUpdater.checkForUpdatesAndNotify();
+
+//   //   } catch (err) {
+//   //     console.error("Updater init failed:", err);
+//   //   }
+//   // }
+
+//   if (!isDev && !isCheckingForUpdate) {
+//     isCheckingForUpdate = true;
+
+//     try {
+//       autoUpdater.logger = console;
+
+//       if (autoUpdater.logger?.transports?.file) {
+//         autoUpdater.logger.transports.file.level = "info";
+//       }
+
+//       autoUpdater.on("update-available", (info) => {
+//         sendToRenderer("update-available", info.version);
+//       });
+
+//       autoUpdater.on("download-progress", (progress) => {
+//         sendToRenderer("update-progress", progress.percent);
+//       });
+
+//       autoUpdater.on("update-downloaded", () => {
+//         sendToRenderer("update-downloaded");
+//       });
+
+//       autoUpdater.checkForUpdatesAndNotify(); // 🔥 use this instead
+//     } catch (err) {
+//       console.error(err);
+//     }
+//   }
+
+//   // macOS behavior
+//   app.on("activate", () => {
+//     if (BrowserWindow.getAllWindows().length === 0) {
+//       createWindow();
+//     }
+//   });
+// });
+
+// // Quit app
+// app.on("window-all-closed", () => {
+//   if (process.platform !== "darwin") {
+//     app.quit();
+//   }
+// });
+
+
+
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -58,6 +225,15 @@ ipcMain.handle("fetch-data", async (event, url) => {
   }
 });
 
+ipcMain.on("start-update-download", async () => {
+  try {
+    await autoUpdater.downloadUpdate();
+  } catch (err) {
+    console.error(err);
+  }
+});
+
+
 ipcMain.on("install-update", () => {
   autoUpdater.quitAndInstall();
 });
@@ -66,59 +242,13 @@ ipcMain.handle("get-app-version", () => {
   return app.getVersion();
 });
 
+let isCheckingForUpdate = false;
+
 // ------------------------------------------------------
 // App Lifecycle
 // ------------------------------------------------------
 app.whenReady().then(() => {
   createWindow();
-
-  // ✅ ONLY run updater in production
-  // if (!isDev) {
-  //   try {
-  //     // Logger setup (safe)
-  //     autoUpdater.logger = console;
-
-  //     if (autoUpdater.logger?.transports?.file) {
-  //       autoUpdater.logger.transports.file.level = "info";
-  //     }
-
-  //     // ---------------------------
-  //     // Updater Events
-  //     // ---------------------------
-  //     autoUpdater.on("checking-for-update", () => {
-  //       console.log("Checking for update...");
-  //     });
-
-  //     autoUpdater.on("update-available", () => {
-  //       console.log("Update available");
-  //       sendToRenderer("update-available");
-  //     });
-
-  //     autoUpdater.on("update-not-available", () => {
-  //       console.log("No updates found");
-  //     });
-
-  //     autoUpdater.on("download-progress", (progress) => {
-  //       console.log("Download:", progress.percent);
-  //       sendToRenderer("update-progress", progress.percent);
-  //     });
-
-  //     autoUpdater.on("update-downloaded", () => {
-  //       console.log("Update downloaded");
-  //       sendToRenderer("update-downloaded");
-  //     });
-
-  //     autoUpdater.on("error", (err) => {
-  //       console.error("Updater error:", err);
-  //     });
-
-  //     // Start update check AFTER listeners
-  //     autoUpdater.checkForUpdatesAndNotify();
-
-  //   } catch (err) {
-  //     console.error("Updater init failed:", err);
-  //   }
-  // }
 
   if (!isDev && !isCheckingForUpdate) {
     isCheckingForUpdate = true;
@@ -126,23 +256,57 @@ app.whenReady().then(() => {
     try {
       autoUpdater.logger = console;
 
-      if (autoUpdater.logger?.transports?.file) {
-        autoUpdater.logger.transports.file.level = "info";
-      }
-
-      autoUpdater.on("update-available", (info) => {
-        sendToRenderer("update-available", info.version);
+      // -------------------------
+      // CHECKING
+      // -------------------------
+      autoUpdater.on("checking-for-update", () => {
+        console.log("Checking for updates...");
       });
 
+      // -------------------------
+      // UPDATE AVAILABLE
+      // -------------------------
+      autoUpdater.on("update-available", (info) => {
+        console.log("Update available");
+
+        // ONLY notify renderer
+        // DO NOT download automatically
+        sendToRenderer("update-available", {
+          version: info.version,
+        });
+      });
+
+      // -------------------------
+      // NO UPDATE
+      // -------------------------
+      autoUpdater.on("update-not-available", () => {
+        console.log("No updates");
+      });
+
+      // -------------------------
+      // DOWNLOAD PROGRESS
+      // -------------------------
       autoUpdater.on("download-progress", (progress) => {
         sendToRenderer("update-progress", progress.percent);
       });
 
+      // -------------------------
+      // UPDATE DOWNLOADED
+      // -------------------------
       autoUpdater.on("update-downloaded", () => {
         sendToRenderer("update-downloaded");
       });
 
-      autoUpdater.checkForUpdatesAndNotify(); // 🔥 use this instead
+      // -------------------------
+      // ERROR
+      // -------------------------
+      autoUpdater.on("error", (err) => {
+        console.log("Updater error:", err);
+      });
+
+      // ✅ ONLY CHECK
+      autoUpdater.checkForUpdates();
+
     } catch (err) {
       console.error(err);
     }
