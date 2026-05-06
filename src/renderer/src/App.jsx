@@ -25,7 +25,6 @@ import LockScreen from "./components/Modal/LockScreen";
 import Community from "./pages/Community.jsx";
 import { requestNotificationPermission } from "./services/firebaseConfig";
 import { useBlockchainNotification } from "./hooks/useBlockchainNotification";
-import UpdatePopup from "./components/UpdatePopup.jsx";
 
 
 const App = () => {
@@ -35,21 +34,14 @@ const App = () => {
   const [updateAvailable, setUpdateAvailable] = useState(false);
   const [updateProgress, setUpdateProgress] = useState(null);
   const [updateReady, setUpdateReady] = useState(false);
-  const [showUpdatePrompt, setShowUpdatePrompt] = useState(false);
 
   useEffect(() => {
     if (!window.api) return;
 
-    const handleUpdateAvailable = (info) => {
-      console.log("Update available", info);
-
+    const handleUpdateAvailable = () => {
+      console.log("Update available");
       setUpdateAvailable(true);
-
-      // IMPORTANT
-      // keep null until user clicks update
-      setUpdateProgress(null);
-
-      setShowUpdatePrompt(true);
+      setUpdateProgress(0);
     };
 
     const handleProgress = (percent) => {
@@ -121,28 +113,12 @@ const App = () => {
 
   const userId = localStorageGetItem("userId");
   const isSessionUnlocked = sessionStorage.getItem("isUnlocked") === "true";
+  const isLinux = navigator.userAgent.toLowerCase().includes("linux");
 
   return (
     <div className="bg-primaryTheme min-h-screen">
 
-      <UpdatePopup
-        updateAvailable={updateAvailable}
-        updateProgress={updateProgress}
-        updateReady={updateReady}
-        showUpdatePrompt={showUpdatePrompt}
-        onUpdateNow={() => {
-          setShowUpdatePrompt(false);
-          setUpdateProgress(1);
-          window.api?.startUpdateDownload?.();
-        }}
-        onLater={() => {
-          setUpdateAvailable(false);
-          setShowUpdatePrompt(false);
-        }}
-        onInstall={() => window.api?.installUpdate?.()}
-      />
-
-      {/* {updateAvailable && (
+      {updateAvailable && (
         <div style={{
           position: "fixed",
           top: 20,
@@ -162,8 +138,24 @@ const App = () => {
               <p>
                 {updateProgress !== null
                   ? `Downloading... ${Math.round(updateProgress)}%`
-                  : "Downloading..."}
+                  : "Preparing update..."}
               </p>
+
+              {updateProgress !== null && (
+                <div style={{
+                  height: "6px",
+                  background: "#333",
+                  borderRadius: "4px",
+                  overflow: "hidden"
+                }}>
+                  <div style={{
+                    width: `${updateProgress}%`,
+                    height: "100%",
+                    background: "#4caf50",
+                    transition: "width 0.3s"
+                  }} />
+                </div>
+              )}
             </>
           ) : (
             <>
@@ -186,26 +178,10 @@ const App = () => {
                   Restart & Install
                 </button>
               )}
-              <p>✅ Update ready to install</p>
-
-              <button
-                onClick={() => window.api?.installUpdate?.()}
-                style={{
-                  marginTop: "10px",
-                  padding: "8px 12px",
-                  background: "#4caf50",
-                  border: "none",
-                  color: "#fff",
-                  borderRadius: "6px",
-                  cursor: "pointer"
-                }}
-              >
-                Restart & Install
-              </button>
             </>
           )}
         </div>
-      )} */}
+      )}
 
       {userId && !isSessionUnlocked && !isUnlocked ? (
         <LockScreen onUnlock={handleUnlock} />
