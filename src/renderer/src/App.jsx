@@ -113,6 +113,7 @@ const App = () => {
 
   const userId = localStorageGetItem("userId");
   const isSessionUnlocked = sessionStorage.getItem("isUnlocked") === "true";
+  const isLinux = navigator.userAgent.toLowerCase().includes("linux");
 
   return (
     <div className="bg-primaryTheme min-h-screen">
@@ -158,22 +159,25 @@ const App = () => {
             </>
           ) : (
             <>
-              <p>✅ Update ready to install</p>
 
-              <button
-                onClick={() => window.api?.installUpdate?.()}
-                style={{
-                  marginTop: "10px",
-                  padding: "8px 12px",
-                  background: "#4caf50",
-                  border: "none",
-                  color: "#fff",
-                  borderRadius: "6px",
-                  cursor: "pointer"
-                }}
-              >
-                Restart & Install
-              </button>
+              {isLinux ? (
+                <p>Restart app to apply update</p>
+              ) : (
+                <button
+                  onClick={() => window.api?.installUpdate?.()}
+                  style={{
+                    marginTop: "10px",
+                    padding: "8px 12px",
+                    background: "#4caf50",
+                    border: "none",
+                    color: "#fff",
+                    borderRadius: "6px",
+                    cursor: "pointer"
+                  }}
+                >
+                  Restart & Install
+                </button>
+              )}
             </>
           )}
         </div>
