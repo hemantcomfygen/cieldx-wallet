@@ -81,8 +81,8 @@ let isCheckingForUpdate = false;
 app.whenReady().then(() => {
   createWindow();
 
-  if (!isDev && !isCheckingForUpdate) {
-    isCheckingForUpdate = true;
+  if (!isDev) {
+    // isCheckingForUpdate = true;
 
     try {
       autoUpdater.logger = console;
@@ -92,7 +92,9 @@ app.whenReady().then(() => {
       }
 
       autoUpdater.on("update-available", (info) => {
-        sendToRenderer("update-available", info.version);
+        sendToRenderer("update-available", {
+          version: info.version,
+        });
       });
 
       autoUpdater.on("download-progress", (progress) => {
@@ -103,7 +105,9 @@ app.whenReady().then(() => {
         sendToRenderer("update-downloaded");
       });
 
-      autoUpdater.checkForUpdates(); // 🔥 use this instead
+      autoUpdater.checkForUpdates();
+      autoUpdater.checkForUpdatesAndNotify();
+
     } catch (err) {
       console.error(err);
     }
