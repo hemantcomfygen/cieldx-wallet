@@ -11,7 +11,6 @@ const __dirname = path.dirname(__filename);
 // Detect dev mode
 const isDev = !app.isPackaged;
 
-
 // ------------------------------------------------------
 // Create Browser Window
 // ------------------------------------------------------
@@ -60,20 +59,12 @@ ipcMain.handle("fetch-data", async (event, url) => {
 });
 
 ipcMain.on("install-update", () => {
-  if (process.platform === "linux") {
-    console.log("Linux detected - quitting app for manual update");
-    app.quit();
-  } else {
-    autoUpdater.quitAndInstall();
-  }
+  autoUpdater.quitAndInstall();
 });
 
 ipcMain.handle("get-app-version", () => {
   return app.getVersion();
 });
-
-
-let isCheckingForUpdate = false;
 
 // ------------------------------------------------------
 // App Lifecycle
@@ -81,8 +72,56 @@ let isCheckingForUpdate = false;
 app.whenReady().then(() => {
   createWindow();
 
-  if (!isDev) {
-    // isCheckingForUpdate = true;
+  // ✅ ONLY run updater in production
+  // if (!isDev) {
+  //   try {
+  //     // Logger setup (safe)
+  //     autoUpdater.logger = console;
+
+  //     if (autoUpdater.logger?.transports?.file) {
+  //       autoUpdater.logger.transports.file.level = "info";
+  //     }
+
+  //     // ---------------------------
+  //     // Updater Events
+  //     // ---------------------------
+  //     autoUpdater.on("checking-for-update", () => {
+  //       console.log("Checking for update...");
+  //     });
+
+  //     autoUpdater.on("update-available", () => {
+  //       console.log("Update available");
+  //       sendToRenderer("update-available");
+  //     });
+
+  //     autoUpdater.on("update-not-available", () => {
+  //       console.log("No updates found");
+  //     });
+
+  //     autoUpdater.on("download-progress", (progress) => {
+  //       console.log("Download:", progress.percent);
+  //       sendToRenderer("update-progress", progress.percent);
+  //     });
+
+  //     autoUpdater.on("update-downloaded", () => {
+  //       console.log("Update downloaded");
+  //       sendToRenderer("update-downloaded");
+  //     });
+
+  //     autoUpdater.on("error", (err) => {
+  //       console.error("Updater error:", err);
+  //     });
+
+  //     // Start update check AFTER listeners
+  //     autoUpdater.checkForUpdatesAndNotify();
+
+  //   } catch (err) {
+  //     console.error("Updater init failed:", err);
+  //   }
+  // }
+
+  if (!isDev && !isCheckingForUpdate) {
+    isCheckingForUpdate = true;
 
     try {
       autoUpdater.logger = console;
@@ -92,9 +131,7 @@ app.whenReady().then(() => {
       }
 
       autoUpdater.on("update-available", (info) => {
-        sendToRenderer("update-available", {
-          version: info.version,
-        });
+        sendToRenderer("update-available", info.version);
       });
 
       autoUpdater.on("download-progress", (progress) => {
@@ -105,9 +142,7 @@ app.whenReady().then(() => {
         sendToRenderer("update-downloaded");
       });
 
-      autoUpdater.checkForUpdates();
-      autoUpdater.checkForUpdatesAndNotify();
-
+      autoUpdater.checkForUpdatesAndNotify(); // 🔥 use this instead
     } catch (err) {
       console.error(err);
     }
