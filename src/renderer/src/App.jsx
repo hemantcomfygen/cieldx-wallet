@@ -138,6 +138,71 @@ const App = () => {
         onInstall={() => window.api?.installUpdate?.()}
       />
 
+      {/* {updateAvailable && (
+        <div style={{
+          position: "fixed",
+          top: 20,
+          right: 20,
+          background: "#111",
+          color: "#fff",
+          padding: "16px",
+          borderRadius: "10px",
+          zIndex: 9999,
+          width: "300px",
+          boxShadow: "0 0 10px rgba(0,0,0,0.5)"
+        }}>
+          <h4 style={{ marginBottom: "10px" }}>🚀 App Update</h4>
+
+          {!updateReady ? (
+            <>
+              <p>
+                {updateProgress !== null
+                  ? `Downloading... ${Math.round(updateProgress)}%`
+                  : "Downloading..."}
+              </p>
+            </>
+          ) : (
+            <>
+
+              {isLinux ? (
+                <p>Restart app to apply update</p>
+              ) : (
+                <button
+                  onClick={() => window.api?.installUpdate?.()}
+                  style={{
+                    marginTop: "10px",
+                    padding: "8px 12px",
+                    background: "#4caf50",
+                    border: "none",
+                    color: "#fff",
+                    borderRadius: "6px",
+                    cursor: "pointer"
+                  }}
+                >
+                  Restart & Install
+                </button>
+              )}
+              <p>✅ Update ready to install</p>
+
+              <button
+                onClick={() => window.api?.installUpdate?.()}
+                style={{
+                  marginTop: "10px",
+                  padding: "8px 12px",
+                  background: "#4caf50",
+                  border: "none",
+                  color: "#fff",
+                  borderRadius: "6px",
+                  cursor: "pointer"
+                }}
+              >
+                Restart & Install
+              </button>
+            </>
+          )}
+        </div>
+      )} */}
+
       {userId && !isSessionUnlocked && !isUnlocked ? (
         <LockScreen onUnlock={handleUnlock} />
       ) : (
