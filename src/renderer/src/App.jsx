@@ -40,10 +40,15 @@ const App = () => {
   useEffect(() => {
     if (!window.api) return;
 
-    const handleUpdateAvailable = () => {
-      console.log("Update available");
+    const handleUpdateAvailable = (info) => {
+      console.log("Update available", info);
+
       setUpdateAvailable(true);
-      setUpdateProgress(0);
+
+      // IMPORTANT
+      // keep null until user clicks update
+      setUpdateProgress(null);
+
       setShowUpdatePrompt(true);
     };
 
@@ -127,8 +132,7 @@ const App = () => {
         showUpdatePrompt={showUpdatePrompt}
         onUpdateNow={() => {
           setShowUpdatePrompt(false);
-          setUpdateProgress(0);
-
+          setUpdateProgress(1);
           window.api?.startUpdateDownload?.();
         }}
         onLater={() => {
