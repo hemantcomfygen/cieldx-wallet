@@ -10,7 +10,7 @@ export const getChainType = (chain) => {
     "OEC", "OPBNB", "CFX", "ZKEVM", "SCROLL",
     "MANTLE", "CELO", "XLAYER", "APE",
     "CORE", "MERLIN", "ONCHAIN",
-    "ETHF", "SONIC", "BERA", "ARB", "3C", "BNB", "USDT_ERC20", "USDT_BEP20", "POL", 
+    "ETHF", "SONIC", "BERA", "ARB", "3C", "BNB", "USDT_ERC20", "USDT_BEP20", "POL", "DRIP" 
   ];
 
   if (EVM.includes(normalized)) return "EVM";
