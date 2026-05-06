@@ -13,6 +13,7 @@ const ApplicationTab = () => {
   const [isChangePinOpen, setIsChangePinOpen] = useState(false);
   const [showPin, setShowPin] = useState(false);
   const [currentPin, setCurrentPin] = useState("******");
+  const [version, setVersion] = useState("");
 
   useEffect(() => {
     const fetchPin = async () => {
@@ -28,6 +29,17 @@ const ApplicationTab = () => {
     };
     fetchPin();
   }, [isChangePinOpen]);
+
+
+
+  useEffect(() => {
+    const loadVersion = async () => {
+      const v = await window.api?.getAppVersion?.();
+      setVersion(v);
+    };
+
+    loadVersion();
+  }, []);
 
 
   return (
@@ -75,6 +87,42 @@ const ApplicationTab = () => {
             </div>
           </div>
 
+        </div>
+      </div>
+
+
+      {/* Application Info Section */}
+      <div className="bg-[#1A1B1C] rounded-3xl p-4 md:p-8 border border-white/5 shadow-2xl">
+        <div className="flex md:items-center gap-4 mb-10">
+          <div className="w-12 h-12 bg-blue-500/10 rounded-full flex items-center justify-center border border-blue-500/20">
+            <Tag size={24} className="text-blue-400" />
+          </div>
+          <div>
+            <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight">
+              Application Info
+            </h3>
+            <p className="text-gray-500">
+              Version and update details
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="flex items-center justify-between p-4 md:p-6 bg-white/[0.02] rounded-2xl border border-white/5 hover:border-white/10 transition-all">
+
+            <div>
+              <h4 className="text-lg font-semibold text-white">App Version</h4>
+              <p className="text-sm text-gray-400">
+                Currently installed version of your wallet
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-white bg-white/5 px-3 py-1 rounded-lg tracking-wider">
+                v{version || "Loading..."}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 

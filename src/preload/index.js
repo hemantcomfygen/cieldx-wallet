@@ -13,6 +13,8 @@ contextBridge.exposeInMainWorld("api", {
   // ----------------------------
   fetchData: (url) => ipcRenderer.invoke("fetch-data", url),
 
+  getAppVersion: () => ipcRenderer.invoke("get-app-version"),
+
   // ----------------------------
   // UPDATE EVENTS
   // ----------------------------
